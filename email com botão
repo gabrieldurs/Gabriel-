@@ -1,0 +1,207 @@
+CODIGO:
+
+function openEmailFormStyled() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const range = sheet.getDataRange();
+  const values = range.getValues();
+  const emails = [];
+
+  for (let i = 1; i < values.length; i++) {
+    // Verifica se a caixa de seleção na coluna C (para e-mails na coluna A) está marcada
+    const marcadoPai = sheet.getRange(i + 1, 3).getValue(); // Coluna C
+    if (marcadoPai === true) {
+      emails.push(values[i][0]); // Coluna A (e-mail dos pais)
+    }
+
+    // Verifica se a caixa de seleção na coluna D (para e-mails na coluna B) está marcada
+    const marcadoMae = sheet.getRange(i + 1, 4).getValue(); // Coluna D
+    if (marcadoMae === true) {
+      emails.push(values[i][1]); // Coluna B (e-mail das mães)
+    }
+  }
+
+  // Verifica se nenhum e-mail foi selecionado
+  if (emails.length === 0) {
+    SpreadsheetApp.getUi().alert("Nenhum email selecionado!");
+  } else {
+    // Envia os e-mails selecionados
+    const template = HtmlService.createTemplateFromFile("formularioEstilizado");
+    template.destinatarios = emails.join(',');
+    const html = template.evaluate().setWidth(500).setHeight(420);
+    SpreadsheetApp.getUi().showModalDialog(html, "Escreva sua mensagem");
+  }
+}
+
+function selecionarTodosPais() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // Marca todas as caixas de seleção na coluna C (para pais)
+  const rangePais = sheet.getRange("C2:C" + sheet.getLastRow());
+  rangePais.setValue(true);  // Marca todas as caixas de seleção na coluna C
+}
+
+function selecionarTodosMaes() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // Marca todas as caixas de seleção na coluna D (para mães)
+  const rangeMaes = sheet.getRange("D2:D" + sheet.getLastRow());
+  rangeMaes.setValue(true);  // Marca todas as caixas de seleção na coluna D
+}
+
+function selecionarTodasCaixas() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // Marcar todas as caixas da coluna C (de C2 até a última linha)
+  const rangeC = sheet.getRange("C2:C" + sheet.getLastRow());
+  rangeC.setValue(true);  // Marca todas as caixas da coluna C
+
+  // Marcar todas as caixas da coluna D (de D2 até a última linha)
+  const rangeD = sheet.getRange("D2:D" + sheet.getLastRow());
+  rangeD.setValue(true);  // Marca todas as caixas da coluna D
+}
+function limparTodasCaixas() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+  
+  // Verificar as colunas C e D da linha 2 até a última linha
+  const rangeC = sheet.getRange("C2:C" + lastRow);  // Coluna C
+  const rangeD = sheet.getRange("D2:D" + lastRow);  // Coluna D
+  
+  // Obter os valores das colunas C e D
+  const valuesC = rangeC.getValues();
+  const valuesD = rangeD.getValues();
+  
+  // Loop pelas linhas para verificar se as caixas de seleção estão marcadas
+  for (let i = 0; i < valuesC.length; i++) {
+    if (valuesC[i][0] === true) {  // Se a caixa de seleção na coluna C estiver marcada
+      sheet.getRange(i + 2, 3).setValue("");  // Apaga o valor da coluna C na linha correspondente
+    }
+    if (valuesD[i][0] === true) {  // Se a caixa de seleção na coluna D estiver marcada
+      sheet.getRange(i + 2, 4).setValue("");  // Apaga o valor da coluna D na linha correspondente
+    }
+  }
+}
+
+
+
+
+/
+/
+/
+/
+HTML:
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_blank">
+    <title>Enviar E-mail</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f1f6;
+        color: #333;
+        padding: 30px;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .form-container {
+        background-color: #ffffff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+        color: #555;
+      }
+
+      input[type="text"], textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 14px;
+        margin-bottom: 15px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+      }
+
+      input[type="text"]:focus, textarea:focus {
+        border-color: #0B84FF;
+        outline: none;
+        background-color: #fff;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      button {
+        padding: 12px 25px;
+        background-color: #0B84FF;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0567cc;
+      }
+
+      button:active {
+        background-color: #0454a6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Enviar E-mail</h2>
+      <form id="formulario" method="GET" action="https://mail.google.com/mail/">
+        <input type="hidden" name="view" value="cm">
+        <input type="hidden" name="fs" value="1">
+        <input type="hidden" name="to" id="destinatarios">
+        
+        <label for="assunto">Assunto:</label>
+        <input type="text" name="su" id="assunto" placeholder="Digite o assunto" required>
+
+        <label for="mensagem">Mensagem:</label>
+        <textarea name="body" id="mensagem" placeholder="Digite sua mensagem" required></textarea>
+
+        <button type="submit">Abrir no Gmail</button>
+      </form>
+    </div>
+
+    <script>
+      // Inserir os destinatários direto no campo hidden
+      document.getElementById("destinatarios").value = "<?= destinatarios ?>";
+    </script>
+  </body>
+</html>
